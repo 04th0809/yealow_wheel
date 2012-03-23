@@ -1,0 +1,18 @@
+<!doctype html>
+<html>
+<head>
+<meta content="text/html; charset=gbk" http-equiv="Content-Type" />
+<title></title>
+<script></script>
+</head>
+<body>
+<button id="button">change</button>
+<script>
+var a = ["#eee","#aaa","#f60"][parseInt(Math.random()*3)];
+document.documentElement.style.backgroundColor = a;
+document.getElementById("button").onclick = function(){
+	parent.frames["iframe1"].location.reload()
+}
+</script>
+</body>
+</html>
