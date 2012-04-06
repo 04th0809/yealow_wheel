@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+<head>
+<meta content="text/html; charset=gbk" http-equiv="Content-Type" />
+<title></title>
+<script src="jquery" type="text/javascript"></script>
+</head>
+<body>
+<input type="text" value="" inptip="请输入关键字"/>
+<script language="javascript" type="text/javascript">
+$('input[inptip]').focus(function(){
+		var t = $(this).attr('inptip');
+		var v = $(this).val();
+		if(v==t){
+			$(this).val('').css('color','#333');
+		};
+	}).blur(function(){
+		var t = $(this).attr('inptip');
+		var v = $(this).val();
+		if(v==''){
+			$(this).val(t).css('color','#999');
+		};
+	}).each(function(){
+		$(this).val($(this).attr('inptip')).css('color','#999');
+	});
+</script>
+</body>
+</html>
