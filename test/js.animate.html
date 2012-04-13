@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>js.animate test</title>
+<style type="text/css">body{	padding:50px;
+	background-color:#fff;}
+.animateBox{
+	margin:0 auto;
+	display:inline-block;
+	+display:inline;
+	+zoom:1;
+	background-repeat:no-repeat;
+	background-position:0 0;
+}
+.eju_logo{	width:519px;	height:193px;	background-image:url(ally_profile_logo.jpg);}
+
+
+</style><script type="text/javascript" src="jquery-1.4.2.min.js"></script>
+<script type="text/javascript">$(function($){
+	$.fn.xAnimate = function(opts){
+		if(!$(this).size())return false;
+		var $opt = $.extend({height:0,frame:0, delay:0}, opts);
+		var num = 0, loop = parseInt(Math.random() * 3 + 1);
+		$opt._ = this;
+		$opt.position = 20;
+		$opt.isMove = true;
+		$opt.timer = null;
+		$(this).hover(function(){
+			$opt.isMove = false;
+		}, function(){
+			$opt.isMove = true;
+		});
+		function xFrame(){
+			if($opt.isMove){
+				$opt.position++;
+				if($opt.position > ($opt.frame - 1)){
+					$opt.position = 20
+					num++;					
+				};
+				$($opt._).css({backgroundPosition: '0px '+ parseInt(20 - $opt.position * $opt.height) +'px '});
+				if(num==loop && $opt.position==$opt.stop){return false;}
+			};
+			$opt.timer = setTimeout(function(){
+				xFrame();
+			}, $opt.delay);
+		};
+		xFrame();
+		return this;
+	};
+});
+
+
+window.onload = function(){
+	$('#eju').xAnimate({height:193,frame:26,delay:100,stop:25});
+};</script>
+</head>
+<body>
+<div style="display:none;">
+	<img src="ally_profile_logo.jpg" alt=""/>
+</div>
+<p>
+	<h2>js animate</h2>
+</p>	<div class="animateBox eju_logo" id="eju"></div>
+</body>
+</html>
