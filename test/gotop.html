@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+<head>
+<title></title>
+<script src="http://page.resfyou.com/comm2/js/jquery.js"></script>
+</head>
+<body>
+<script>
+(function goTop(){
+	$("body").append('<div id="goTop" style="position:fixed;_position:absolute;bottom:150px;left:50%;margin-left:500px;width:19px;height:57px;cursor:pointer;background:url(http://page.resfyou.com/comm2/images/detail_true/gotop.png) no-repeat 0 0;visibility:hidden"></div>')
+	if($.browser.version==6.0){
+		$("#goTop")[0].style.setExpression('top', 'eval((document.documentElement.scrollTop+document.documentElement.clientHeight) - 200) + \'px\'')
+	}
+	$(window).scroll(function(){
+		if($(window).scrollTop() > $(window).height()*0.6){
+			$("#goTop").css('visibility','visible');
+		}else{
+			$("#goTop").css('visibility','hidden');
+		}
+	})
+	$("#goTop").click(function(){
+		$(window).scrollTop(0);
+	})
+})()
+</script>
+</body>
+</html>

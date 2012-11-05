@@ -1,0 +1,205 @@
+
+<!doctype html>
+<html>
+<head>
+<title>管理小组</title>
+<meta content="text/html; charset=gbk" http-equiv="Content-Type" />
+<script src="jquery-1.6.2.js"></script>
+<style type="text/css">
+.chgediting{width:400px;padding:20px 0;margin:0 auto;}
+.tip{position:absolute;top:0;left:50%;width:200px;margin-left:-100px;line-height:20px; padding:3px 5px; background:#FFF8DB;text-align:center; color:#ff0000;}
+.edi_name{margin-bottom:5px;}
+.edi_ul{border:1px solid #D7D7D7;border-bottom:0; border-bottom:none;}
+.edi_ul li{height:27px;border-bottom:1px solid #D7D7D7; padding:5px 10px 0 10px; line-height:22px;vertical-align:top;}
+.edi_ul li .sp1,.edi_ul li .sp2{float:left;}
+.edi_ul li .sp2{margin-left:-4px;}
+.edi_ul li .sp2 .ul_inp{border:1px solid #D4D4D4;padding:2px; line-height:16px;width:100px;}
+.edi_ul li a{ color:#3366CC;}
+.edi_ul li .sp3{float:right;}
+</style>
+</head>
+<body>
+	<div class="chgediting">
+		<div class="edi_name">
+			分组名：
+		</div>
+		<ul class="edi_ul">
+						<li>
+				<span class="sp1" vid="35365773">测试小组1</span>
+				<span class="sp3"><a href="javascript:" class="edi_bj">编辑</a>&nbsp;<a href="javascript:" class="edi_del">删除</a></span>
+			</li>
+						<li>
+				<span class="sp1" vid="35450502">大宁A组</span>
+				<span class="sp3"><a href="javascript:" class="edi_bj">编辑</a>&nbsp;<a href="javascript:" class="edi_del">删除</a></span>
+			</li>
+					</ul>
+	</div>
+<script>
+var edit_team = {
+	defaults: {
+		tip: {
+			min: "小组名不能为空",
+			max: "小组名最多为6个字",
+			repeat: "小组名重复，请重新输入",
+			load: "载入中",
+			succeed: "保存成功",
+			error: "服务器繁忙，请稍后再试"
+		},
+		config: {35365773:'测试小组1',35450502:'大宁A组'}
+	},
+	init: function(){
+		var context = this;
+		$(".edi_ul .sp1").click(function(){
+			context.edit($(this));
+		})
+		$(".edi_bj").click(function(){
+			var sp1 = $(this).parent().parent().find(".sp1");
+			context.edit(sp1);
+			return false;
+		})
+		$(".edi_del").click(function(){
+			if(!confirm("确定删除该小组")) return false;
+			var item = $(this).parent().parent(),
+				v = item.find(".sp1").attr("vid");
+			context.del(item,v);
+			return false;
+		})
+
+	},
+	edit: function(sp1){
+		if(this.isEdit(sp1)) return false;
+		var context = this;
+		this.hide($(".edi_ul .sp1"));
+		var s = sp1.text();
+		var field = this.create(sp1,s);
+		this.show(sp1,field);
+		$(".ul_inp",field).focus();
+
+		$(".edi_false",field).click(function(){
+			context.hide(sp1);
+		})
+		$(".edi_true",field).click(function(){
+			var v = $.trim($(this).prev('.ul_inp').val())
+			$(this).prev('.ul_inp').val(v);
+			var vid = sp1.attr("vid");
+			if(v=== s){
+				context.hide(sp1)
+				return false;
+			}
+			var config = context.defaults.config;
+			if(context.max(v) && context.min(v) && context.repeat(vid,v)){
+				context.post(vid,v,sp1);
+			}else{
+				$(".ul_inp",field).focus();
+			}
+		})
+	},
+	isEdit: function(sp1){
+		if(sp1.is(":visible")){
+			return false;
+		}
+		return true;
+	},
+	create: function(_this,v){
+		if(!$(".sp2",_this).length){
+			return  $('<span class="sp2" style="display:none">'+
+							'<input class="ul_inp" type="text" value='+ v +' />&nbsp;'+
+							'<a href="javascript:" class="edi_true">确定</a>&nbsp;<a href="javascript:" class="edi_false">取消</a>'+
+						'</span>');
+		}else{
+			return $(".sp2",_this).val(v)
+		}
+	},
+	show: function(sp1,field){
+		sp1.hide();
+		sp1.after(field);
+		field.fadeIn();
+	},
+	hide: function(sp1){
+		this.hideTip();
+		sp1.next('.sp2').hide().val("");
+		sp1.show();
+	},
+	createTip: function(v){
+		var s = '<div class="tip">'+ v +'</div>';
+		$('body').prepend(s);
+	},
+	showTip: function(v,type){
+		if(!$(".tip").length){
+			var s = '<div class="tip">'+ v +'</div>';
+			$('body').prepend(s);
+		}else{
+			$(".tip").text(v).show();
+		}
+		!type && setTimeout(this.hideTip,2000)
+	},
+	hideTip: function(){
+		$(".tip").fadeOut();
+	},
+	del: function(item,v){
+		var config = this.defaults.config;
+		$.post("/group/del",{v:v},function(callback){
+			if(callback){
+				item.fadeOut(function(){$(this).remove()});
+				delete config[v];
+			}else{
+				alert("删除失败");
+			}
+		})
+	},
+	min: function(val){
+		var flag = true;
+		if($.trim(val).length===0){
+			flag = false;
+			this.showTip(this.defaults.tip.min)
+		}
+		return flag;
+	},
+	max: function(val){
+		var flag = true;
+		if($.trim(val).length>6){
+			flag = false;
+			this.showTip(this.defaults.tip.max)
+		}
+		return flag;
+	},
+	repeat: function(vid,val){
+		var flag = true,
+			context = this,
+			config = context.defaults.config;
+		$.each(config,function(index,name){
+			if(vid!==index && name === val){
+				context.showTip(context.defaults.tip.repeat)
+				flag = false;
+				return false;
+			}
+		})
+		return flag;
+	},
+	post: function(vid,v,sp1){
+		var context = this,
+			 config = this.defaults.config;
+		this.showTip(this.defaults.tip.load,true);
+		$.post("/group/edit",{vid:vid,val:v},function(callback){
+			if(callback=="succ"){
+				context.showTip(context.defaults.tip.succeed);
+				sp1.text(v);
+				config[vid] = v;
+			}else if(callback=="repeat"){
+				context.showTip(context.defaults.tip.repeat)
+			}else{
+				context.showTip(context.defaults.tip.error);
+			}
+			context.hide(sp1);
+		})
+	}
+}
+edit_team.init();
+
+var msg = '';
+if (msg != '') {
+	alert(msg);
+}
+</script>
+</body>
+</html>
